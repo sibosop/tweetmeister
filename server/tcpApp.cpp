@@ -66,11 +66,11 @@ TcpApp::run()
     size_t i;
     for(i = 0; i < taskList.size(); ++i)
     {
-      pollptr.get()[i+1].fd = taskList[i].get()->fd;
-      pollptr.get()[i+1].events = POLLIN;
+      pollptr[i+1].fd = taskList[i].get()->fd;
+      pollptr[i+1].events = POLLIN;
     }
     poll(pollptr.get(), size, -1);
-    if ( pollptr.get()[0].revents & POLLIN )
+    if ( pollptr[0].revents & POLLIN )
     {
       DEBUG(TCP_APP,"accept got connection");
       struct sockaddr_in cli_addr;
@@ -83,7 +83,7 @@ TcpApp::run()
     TaskList tmp;
     for(i = 1; i < size; ++i)
     {
-      if (pollptr.get()[i].revents & POLLIN )
+      if (pollptr[i].revents & POLLIN )
       {
         TaskList::iterator tli;
         for (tli = taskList.begin(); tli != taskList.end(); ++tli)
