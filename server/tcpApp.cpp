@@ -60,7 +60,7 @@ TcpApp::run()
   {
     
     size_t size = taskList.size()+1;
-    std::unique_ptr<struct pollfd> pollptr(new struct pollfd[size]);
+    std::unique_ptr<struct pollfd[]> pollptr(new struct pollfd[size]);
     pollptr.get()[0].fd = acceptFd;
     pollptr.get()[0].events = POLLIN;
     size_t i;
