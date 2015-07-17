@@ -61,12 +61,12 @@ TcpApp::run()
     
     size_t size = taskList.size()+1;
     std::unique_ptr<struct pollfd[]> pollptr(new struct pollfd[size]);
-    pollptr.get()[0].fd = acceptFd;
-    pollptr.get()[0].events = POLLIN;
+    pollptr[0].fd = acceptFd;
+    pollptr[0].events = POLLIN;
     size_t i;
     for(i = 0; i < taskList.size(); ++i)
     {
-      pollptr[i+1].fd = taskList[i].get()->fd;
+      pollptr[i+1].fd = taskList[i]->fd;
       pollptr[i+1].events = POLLIN;
     }
     poll(pollptr.get(), size, -1);
@@ -88,9 +88,9 @@ TcpApp::run()
         TaskList::iterator tli;
         for (tli = taskList.begin(); tli != taskList.end(); ++tli)
         {
-          if ( (*tli).get()->fd == pollptr.get()[i].fd)
+          if ( (*tli)->fd == pollptr[i].fd)
           {
-            if (!(*tli).get()->handler())
+            if (!(*tli)->handler())
             {
               taskList.erase(tli);
             }
