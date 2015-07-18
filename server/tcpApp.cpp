@@ -25,6 +25,10 @@ TcpApp::TcpApp(int port_)
 {
     acceptFd = socket(AF_INET, SOCK_STREAM, 0);
     ASSERT(acceptFd >= 0);
+    int optval = 1 ; 
+
+    if (setsockopt(acceptFd,SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(int)) == -1) 
+      FAIL("setsockopt"<<DUMP(errno)<<strerror(errno)) ;
     
     struct sockaddr_in serv_addr;
     bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -90,7 +94,7 @@ TcpApp::run()
         {
           if ( (*tli)->fd == pollptr[i].fd)
           {
-            if (!(*tli)->handler())
+            if (!(*tli)->handler(*tli))
             {
               taskList.erase(tli);
             }

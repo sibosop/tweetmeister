@@ -136,7 +136,8 @@ tweetmeister.o: /usr/include/c++/4.9/bits/vector.tcc /usr/include/unistd.h
 tweetmeister.o: /usr/include/arm-linux-gnueabihf/bits/posix_opt.h
 tweetmeister.o: /usr/include/arm-linux-gnueabihf/bits/environments.h
 tweetmeister.o: /usr/include/arm-linux-gnueabihf/bits/confname.h
-tweetmeister.o: /usr/include/getopt.h
+tweetmeister.o: /usr/include/getopt.h /usr/include/c++/4.9/random
+tweetmeister.o: /usr/include/c++/4.9/bits/c++0x_warning.h
 tcpApp.o: tcpApp.h /usr/include/c++/4.9/memory
 tcpApp.o: /usr/include/c++/4.9/bits/stl_algobase.h
 tcpApp.o: /usr/include/arm-linux-gnueabihf/c++/4.9/bits/c++config.h
@@ -308,9 +309,11 @@ tweetApp.o: /usr/include/arm-linux-gnueabihf/bits/types.h
 tweetApp.o: /usr/include/arm-linux-gnueabihf/bits/typesizes.h
 tweetApp.o: /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stddef.h
 tweetApp.o: /usr/include/arm-linux-gnueabihf/bits/confname.h
-tweetApp.o: /usr/include/getopt.h basics.h /usr/include/c++/4.9/iostream
-tweetApp.o: /usr/include/c++/4.9/ostream /usr/include/c++/4.9/ios
-tweetApp.o: /usr/include/c++/4.9/iosfwd /usr/include/c++/4.9/bits/stringfwd.h
+tweetApp.o: /usr/include/getopt.h /usr/include/c++/4.9/random
+tweetApp.o: /usr/include/c++/4.9/bits/c++0x_warning.h basics.h
+tweetApp.o: /usr/include/c++/4.9/iostream /usr/include/c++/4.9/ostream
+tweetApp.o: /usr/include/c++/4.9/ios /usr/include/c++/4.9/iosfwd
+tweetApp.o: /usr/include/c++/4.9/bits/stringfwd.h
 tweetApp.o: /usr/include/c++/4.9/bits/postypes.h /usr/include/c++/4.9/cwchar
 tweetApp.o: /usr/include/wchar.h /usr/include/stdio.h
 tweetApp.o: /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stdarg.h
@@ -362,4 +365,4 @@ tweetApp.o: /usr/include/c++/4.9/fstream /usr/include/c++/4.9/bits/codecvt.h
 tweetApp.o: /usr/include/c++/4.9/cstdio
 tweetApp.o: /usr/include/arm-linux-gnueabihf/c++/4.9/bits/basic_file.h
 tweetApp.o: /usr/include/arm-linux-gnueabihf/c++/4.9/bits/c++io.h
-tweetApp.o: /usr/include/c++/4.9/bits/fstream.tcc
+tweetApp.o: /usr/include/c++/4.9/bits/fstream.tcc /usr/include/string.h

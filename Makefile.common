@@ -1,6 +1,6 @@
 CXX=g++-4.9
 
-CXXFLAGS=-std=c++14 -Wall -pedantic -D__ARM_PCS_VFP
+CXXFLAGS=-std=c++11 -Wall -pedantic -D__ARM_PCS_VFP
 
 DEPEND_FLAGS=-I/usr/include/c++/4.9/ \
 	-I/usr/include/arm-linux-gnueabihf/c++/4.9/ \

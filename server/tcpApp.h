@@ -5,13 +5,16 @@
 #include <unistd.h>
 
 namespace tweet {
+class TaskInfo;
+typedef std::shared_ptr<TaskInfo> Task;
+  
 class TaskInfo
 {
 public:
   int fd;
   uint32_t id;
   std::string name;
-  virtual bool handler() = 0;
+  virtual bool handler(Task&) = 0;
   TaskInfo()
   { 
   }
@@ -19,7 +22,7 @@ public:
   
 };
 
-typedef std::shared_ptr<TaskInfo> Task;
+
 
 class TcpApp 
 {
