@@ -10,98 +10,82 @@
 
 namespace tweet {
 bool DEBUG_TCP_APP=true;
-uint32_t TcpApp::id = 0;
 
-TaskInfo::~TaskInfo()
-{
-  DEBUG(TCP_APP,"closing"<<DUMP(name));
-  close(fd);
-}
-  
-  
-
-TcpApp::TcpApp(int port_)
-  : port(port_)
-{
-    acceptFd = socket(AF_INET, SOCK_STREAM, 0);
-    ASSERT(acceptFd >= 0);
-    int optval = 1 ; 
-
-    if (setsockopt(acceptFd,SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(int)) == -1) 
-      FAIL("setsockopt"<<DUMP(errno)<<strerror(errno)) ;
-    
-    struct sockaddr_in serv_addr;
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    DEBUG(TCP_APP,DUMP(port));
-    serv_addr.sin_port = htons(port);
-    
-    if (bind(acceptFd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-      FAIL("ERROR on binding" << DUMP(errno)<< " "<<strerror(errno));
-    
-    listen(acceptFd,5);
-}
 
 void
-TcpApp::add(Task t)
+TcpApp_::addAcceptor(Task t,int port)
 {
-  (*t).id = ++id;
-  std::ostringstream oss;
-  oss << "Task-" << (*t).id;
-  (*t).name = oss.str();
+  t->afd = socket(AF_INET, SOCK_STREAM, 0);
+  ASSERT(t->afd >= 0);
+  int optval = 1 ; 
+
+  if (setsockopt(t->afd,SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(int)) == -1) 
+    FAIL("setsockopt"<<DUMP(errno)<<strerror(errno)) ;
+  
+  struct sockaddr_in serv_addr;
+  bzero((char *) &serv_addr, sizeof(serv_addr));
+  
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_addr.s_addr = INADDR_ANY;
+  DEBUG(TCP_APP,DUMP(port));
+  serv_addr.sin_port = htons(port);
+  
+  if (bind(t->afd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
+    FAIL("ERROR on binding" << DUMP(errno)<< " "<<strerror(errno));
+  
+  listen(t->afd,5);
   taskList.push_back(t);
 }
 
 
 int
-TcpApp::run()
+TcpApp_::run()
 {
   int exit = 0;
-  
+  std::unique_ptr<struct pollfd[]> pollptr;
   while(!exit)
   {
-    
-    size_t size = taskList.size()+1;
-    std::unique_ptr<struct pollfd[]> pollptr(new struct pollfd[size]);
-    pollptr[0].fd = acceptFd;
-    pollptr[0].events = POLLIN;
-    size_t i;
+    size_t i; 
+    pollptr.reset(new struct pollfd[taskList.size()]);
     for(i = 0; i < taskList.size(); ++i)
     {
-      pollptr[i+1].fd = taskList[i]->fd;
-      pollptr[i+1].events = POLLIN;
+      if ( taskList[i]->isAcceptor() )
+        pollptr[i].fd = taskList[i]->afd;
+      else
+        pollptr[i].fd = taskList[i]->hfd;
+      pollptr[i].events = POLLIN;
     }
-    poll(pollptr.get(), size, -1);
-    if ( pollptr[0].revents & POLLIN )
-    {
-      DEBUG(TCP_APP,"accept got connection");
-      struct sockaddr_in cli_addr;
-      socklen_t clilen = sizeof(cli_addr);
-      int fd = accept(acceptFd, 
-                   (struct sockaddr *) &cli_addr, 
-                   &clilen);
-      doAccept(fd);
-    }
-    TaskList tmp;
-    for(i = 1; i < size; ++i)
+    poll(pollptr.get(), taskList.size(), -1);
+    TaskList newTasks;
+    for( i = 0; i < taskList.size();)
     {
       if (pollptr[i].revents & POLLIN )
       {
-        TaskList::iterator tli;
-        for (tli = taskList.begin(); tli != taskList.end(); ++tli)
+        if ( taskList[i]->isAcceptor() )
         {
-          if ( (*tli)->fd == pollptr[i].fd)
+          DEBUG(TCP_APP,"accept got connection");
+          struct sockaddr_in cli_addr;
+          socklen_t clilen = sizeof(cli_addr);
+          int fd = accept(taskList[i]->afd, 
+                       (struct sockaddr *) &cli_addr, 
+                       &clilen);
+          newTasks.push_back(taskList[i]->getHandler(fd));
+        }
+        if ( taskList[i]->isHandler() )
+        {
+          if ( !taskList[i]->handler() )
           {
-            if (!(*tli)->handler(*tli))
-            {
-              taskList.erase(tli);
-            }
-            break;
+            taskList.erase(taskList.begin() + i);
+            continue; // stops advance of iterator
           }
         }
       }
+      ++i;
+    }
+    while ( !newTasks.empty() )
+    {
+      taskList.push_back(newTasks.back());
+      newTasks.pop_back();
     }
   }
   return exit;

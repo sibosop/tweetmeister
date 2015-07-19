@@ -1,9 +1,9 @@
 #include "basics.h"
-#include "tweetApp.h"
+#include "tweetTask.h"
 int
 main(int argc,char *argv[])
 {
   std::cout << "tweet!!!" << std::endl;
-  tweet::TweetApp app;
-  return app.run();
+  tweet::TcpApp::Instance()->addAcceptor(tweet::Task(new tweet::TweetTask),6666);
+  return tweet::TcpApp::Instance()->run();
 }

@@ -1,44 +1,27 @@
 #ifndef TCPAPP_H
 #define TCPAPP_H
-#include <memory>
+
 #include <vector>
 #include <unistd.h>
+#include "singleton.h"
+#include "task.h"
+
 
 namespace tweet {
-class TaskInfo;
-typedef std::shared_ptr<TaskInfo> Task;
-  
-class TaskInfo
+
+class TcpApp_
 {
-public:
-  int fd;
-  uint32_t id;
-  std::string name;
-  virtual bool handler(Task&) = 0;
-  TaskInfo()
-  { 
-  }
-  ~TaskInfo();
-  
-};
-
-
-
-class TcpApp 
-{
-public:
-  TcpApp(int port_);
-  virtual ~TcpApp(){}
+public: 
+  TcpApp_() {}
+  ~TcpApp_(){}
   int run();
-protected:
-  virtual void doAccept(int fd) = 0;
-  void add(Task);
+  void addAcceptor(Task,int port);
 private:
-  int port;
-  int acceptFd;
-  static uint32_t id;
   typedef std::vector<Task>  TaskList;
   TaskList taskList;
 };
+
+typedef Singleton<TcpApp_> TcpApp;
+
 }
 #endif
