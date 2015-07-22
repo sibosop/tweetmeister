@@ -24,7 +24,6 @@ WavMaker_::modSegments()
       oss << " ";
     oss << tweetList[i];
   }
-  oss << std::endl;
   std::string rval= oss.str();
   return rval;
 }
